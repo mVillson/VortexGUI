@@ -1,0 +1,6 @@
+﻿  Renderer2D.cpp
+C:\Dev\VortexGUI\VortexGUI\src\Renderer\Renderer2D.cpp(190,34): warning C4244: '=': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Dev\VortexGUI\VortexGUI\src\Renderer\Renderer2D.cpp(196,34): warning C4244: '=': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Dev\VortexGUI\VortexGUI\src\Renderer\Renderer2D.cpp(202,34): warning C4244: '=': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Dev\VortexGUI\VortexGUI\src\Renderer\Renderer2D.cpp(208,34): warning C4244: '=': conversion from 'unsigned int' to 'float', possible loss of data
+  VortexGUI.vcxproj -> C:\Dev\VortexGUI\bin\Debug-Win32\VortexGUI\VortexGUI.dll
