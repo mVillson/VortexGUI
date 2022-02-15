@@ -59,8 +59,20 @@ void ShaderProgram::Create()
 	glShaderSource(vs, 1, &vsSrc, nullptr);
 	glShaderSource(fs, 1, &fsSrc, nullptr);
 
+	int isCompiled = 0;
 	glCompileShader(vs);
+	glGetShaderiv(vs, GL_COMPILE_STATUS, &isCompiled);
+	if (isCompiled == 0)
+	{
+		printf("Error: Vertex shader did not compile!");
+	}
+
 	glCompileShader(fs);
+	glGetShaderiv(fs, GL_COMPILE_STATUS, &isCompiled);
+	if (isCompiled == 0)
+	{
+		printf("Error: Fragment shader did not compile!");
+	}
 
 	mProgram = glCreateProgram();
 
