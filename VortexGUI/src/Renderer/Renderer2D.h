@@ -23,5 +23,5 @@ public:
 	static void Clear();
 
 	static void DrawQuad(const vec2& position, const vec2& size, const vec4& color);
-	static void DrawQuad(const vec2& position, const vec2& size, unsigned int textureID);
+	static void DrawQuad(const vec2& position, const vec2& size, int textureID, const vec4& tintColor = { 1.0f, 1.0f, 1.0f, 1.0f });
 };

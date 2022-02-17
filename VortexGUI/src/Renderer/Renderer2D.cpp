@@ -9,7 +9,6 @@
 static const unsigned int MaxQuadCount = 100;
 static const unsigned int MaxVertexCount = 4 * MaxQuadCount;
 static const unsigned int MaxIndexCount = 6 * MaxQuadCount;
-static const unsigned int MaxTextureSlots = 32;
 
 struct Vertex
 {
@@ -29,8 +28,6 @@ struct RendererData
 	Vertex* QuadBufferPtr = nullptr;
 
 	unsigned int CurrentQuads = 0;
-
-	unsigned int WhiteTexture;
 
 	ShaderProgram sp;
 };
@@ -80,27 +77,18 @@ void Renderer2D::Init()
 	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(offsetof(Vertex, TexIndex)));
 	glEnableVertexArrayAttrib(sData.va, 3);
 
-	// 1x1 white texture
-	glCreateTextures(GL_TEXTURE_2D, 1, &sData.WhiteTexture);
-	glBindTexture(GL_TEXTURE_2D, sData.WhiteTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	unsigned int color = 0xffffffff;
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
-
-	glBindTextureUnit(0, sData.WhiteTexture);
-
-	int samplers[32];
-	for (int i = 0; i < 32; i++)
-	{
-		samplers[i] = i;
-	}
-
-	glUniform1iv(glGetUniformLocation(sData.sp.GetProgram(), "uTextures"), 32, samplers);
-
 	sData.sp.Create();
+
+	std::string texture;
+	std::stringstream texSlot;
+	for (int i = 0; i < 31; i++)
+	{
+		texture = "uTexture";
+		texSlot.str("");
+		texSlot << i;
+		texture += texSlot.str().c_str();
+		sData.sp.SetUniform1i(texture.c_str(), i);
+	}
 }
 
 void Renderer2D::BeginBatch()
@@ -126,8 +114,6 @@ void Renderer2D::ShutDown()
 	glDeleteBuffers(1, &sData.vb);
 	glDeleteBuffers(1, &sData.ib);
 
-	glDeleteTextures(1, &sData.WhiteTexture);
-
 	delete[] sData.QuadBuffer;
 }
 
@@ -142,7 +128,7 @@ void Renderer2D::DrawQuad(const vec2& position, const vec2& size, const vec4& co
 		sData.CurrentQuads = 0;
 	}
 
-	float index = 0.0f;
+	float index = -1.0f;
 
 	sData.QuadBufferPtr->Position = { position.x, position.y, 0.0f };
 	sData.QuadBufferPtr->Color = color;
@@ -171,7 +157,7 @@ void Renderer2D::DrawQuad(const vec2& position, const vec2& size, const vec4& co
 	sData.CurrentQuads++;
 }
 
-void Renderer2D::DrawQuad(const vec2& position, const vec2& size, unsigned int textureID)
+void Renderer2D::DrawQuad(const vec2& position, const vec2& size, int textureID, const vec4& tintColor)
 {
 	if (sData.CurrentQuads >= MaxQuadCount)
 	{
@@ -182,30 +168,28 @@ void Renderer2D::DrawQuad(const vec2& position, const vec2& size, unsigned int t
 		sData.CurrentQuads = 0;
 	}
 
-	const vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 	sData.QuadBufferPtr->Position = { position.x, position.y, 0.0f };
-	sData.QuadBufferPtr->Color = color;
+	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 0.0f, 0.0f };
-	sData.QuadBufferPtr->TexIndex = textureID;
+	sData.QuadBufferPtr->TexIndex = (float)textureID;
 	sData.QuadBufferPtr++;
 
 	sData.QuadBufferPtr->Position = { position.x, position.y + size.y, 0.0f };
-	sData.QuadBufferPtr->Color = color;
+	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 0.0f, 1.0f };
-	sData.QuadBufferPtr->TexIndex = textureID;
+	sData.QuadBufferPtr->TexIndex = (float)textureID;
 	sData.QuadBufferPtr++;
 
 	sData.QuadBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
-	sData.QuadBufferPtr->Color = color;
+	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 1.0f, 1.0f };
-	sData.QuadBufferPtr->TexIndex = textureID;
+	sData.QuadBufferPtr->TexIndex = (float)textureID;
 	sData.QuadBufferPtr++;
 
 	sData.QuadBufferPtr->Position = { position.x + size.x, position.y, 0.0f };
-	sData.QuadBufferPtr->Color = color;
+	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 1.0f, 0.0f };
-	sData.QuadBufferPtr->TexIndex = textureID;
+	sData.QuadBufferPtr->TexIndex = (float)textureID;
 	sData.QuadBufferPtr++;
 
 	sData.CurrentQuads++;

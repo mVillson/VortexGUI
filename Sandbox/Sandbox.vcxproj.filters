@@ -23,5 +23,6 @@
     <Image Include="assets\wooden_crate.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\metal.jfif" />
   </ItemGroup>
 </Project>

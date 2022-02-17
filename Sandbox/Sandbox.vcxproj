@@ -27,6 +27,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="assets\metal.jfif" />
     <Image Include="assets\wooden_crate.jpg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
