@@ -1,6 +1,6 @@
 #include "ShaderProgram.h"
 
-#include <GLEW/glew.h>
+#include "GLEW\glew.h"
 
 #include <iostream>
 

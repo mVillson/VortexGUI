@@ -1,30 +1,22 @@
 #include "..\..\VortexGUI\VortexGUI.h"
 
-#include "GLFW/glfw3.h"
-
 int main()
 {
-	if (!glfwInit())
-		printf("Error: GLFW could not initialize correctly!");
-
-	GLFWwindow* window = glfwCreateWindow(800, 600, "C++ & OpenGL", NULL, NULL);
-
-	glfwMakeContextCurrent(window);
+	Window::InitGlfw();
+	Window::CreateWindow(800, 600, "C++ & OpenGL");
 
 	InitOpenGL();
 
 	Renderer2D::ClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 	
-	auto texture1 = LoadTexture("assets/wooden_crate.jpg");
-	auto texture2 = LoadTexture("assets/metal.jfif");
-	BindTextureSlot(0, texture1);
-	BindTextureSlot(1, texture2);
+	auto texture1 = Texture::LoadTexture("assets/wooden_crate.jpg");
+	auto texture2 = Texture::LoadTexture("assets/metal.jfif");
 
 	Renderer2D::Init();
 
-	while (!glfwWindowShouldClose(window))
+	while (!Window::GetWindowShouldClose())
 	{
-		glfwPollEvents();
+		Window::PollEvents();
 		
 		Renderer2D::Clear();
 
@@ -32,18 +24,19 @@ int main()
 		
 		Renderer2D::DrawQuad({ -0.5f, -0.5f }, { 0.25f, 0.25f }, { 0.97f, 0.93f, 0.13f, 1.0f });
 
-		Renderer2D::DrawQuad({ -0.20f, -0.5f }, { 0.25f, 0.25f }, 0, { 0.7f, 1.0f, 0.8f, 1.0f });
+		Renderer2D::DrawTexture({ -0.20f, -0.5f }, { 0.25f, 0.25f }, texture1, { 0.7f, 1.0f, 0.8f, 1.0f });
 
-		Renderer2D::DrawQuad({ 0.10f, -0.5f }, { 0.25f, 0.25f }, 1);
+		Renderer2D::DrawTexture({ 0.10f, -0.5f }, { 0.25f, 0.25f }, texture2, { 1.0f, 1.0f, 1.0f, 1.0f });
 
 		Renderer2D::EndBatch();
 
 		Renderer2D::Flush();
 
-		glfwSwapBuffers(window);
+		Window::SwapBuffers();
 	}
 	
 	Renderer2D::ShutDown();
+	Window::Shutdown();
 
 	return 0;
 }

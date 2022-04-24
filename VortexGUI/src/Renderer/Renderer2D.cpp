@@ -1,14 +1,15 @@
 #include "Renderer2D.h"
 
-#include "GLEW/glew.h"
+#include "GLEW\glew.h"
 
 #include "..\..\vendor\stb_image\stb_image.h"
 
 #include "ShaderProgram.h"
 
-static const unsigned int MaxQuadCount = 100;
+static const unsigned int MaxQuadCount = 1000;
 static const unsigned int MaxVertexCount = 4 * MaxQuadCount;
 static const unsigned int MaxIndexCount = 6 * MaxQuadCount;
+static const unsigned int MaxTextureSlots = 32;
 
 struct Vertex
 {
@@ -28,6 +29,9 @@ struct RendererData
 	Vertex* QuadBufferPtr = nullptr;
 
 	unsigned int CurrentQuads = 0;
+
+	unsigned int TextureSlots[MaxTextureSlots];
+	unsigned int TextureSlotIndex = 0;
 
 	ShaderProgram sp;
 };
@@ -66,16 +70,16 @@ void Renderer2D::Init()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, MaxIndexCount * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(offsetof(Vertex, Position)));
-	glEnableVertexArrayAttrib(sData.va, 0);
+	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(offsetof(Vertex, Color)));
-	glEnableVertexArrayAttrib(sData.va, 1);
+	glEnableVertexAttribArray(1);
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(offsetof(Vertex, TexCoord)));
-	glEnableVertexArrayAttrib(sData.va, 2);
+	glEnableVertexAttribArray(2);
 
 	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(offsetof(Vertex, TexIndex)));
-	glEnableVertexArrayAttrib(sData.va, 3);
+	glEnableVertexAttribArray(3);
 
 	sData.sp.Create();
 
@@ -89,6 +93,9 @@ void Renderer2D::Init()
 		texture += texSlot.str().c_str();
 		sData.sp.SetUniform1i(texture.c_str(), i);
 	}
+
+	for (unsigned int i = 0; i < MaxTextureSlots; i++)
+		sData.TextureSlots[i] = 0;
 }
 
 void Renderer2D::BeginBatch()
@@ -104,6 +111,11 @@ void Renderer2D::EndBatch()
 
 void Renderer2D::Flush()
 {
+	for (unsigned int i = 0; i < sData.TextureSlotIndex; i++)
+	{
+		glBindTextureUnit(i, sData.TextureSlots[i]);
+	}
+
 	glBindVertexArray(sData.va);
 	glDrawElements(GL_TRIANGLES, 6 * sData.CurrentQuads, GL_UNSIGNED_INT, nullptr);
 }
@@ -157,9 +169,9 @@ void Renderer2D::DrawQuad(const vec2& position, const vec2& size, const vec4& co
 	sData.CurrentQuads++;
 }
 
-void Renderer2D::DrawQuad(const vec2& position, const vec2& size, int textureID, const vec4& tintColor)
+void Renderer2D::DrawTexture(const vec2& position, const vec2& size, int textureID, const vec4& tintColor)
 {
-	if (sData.CurrentQuads >= MaxQuadCount)
+	if (sData.CurrentQuads >= MaxQuadCount || sData.TextureSlotIndex > 32)
 	{
 		EndBatch();
 		Flush();
@@ -168,28 +180,47 @@ void Renderer2D::DrawQuad(const vec2& position, const vec2& size, int textureID,
 		sData.CurrentQuads = 0;
 	}
 
+	
+	float textureIndex = 0.0f;
+	for (unsigned int i = 1; i < sData.TextureSlotIndex; i++)
+	{
+		if (sData.TextureSlots[i] == textureID)
+		{
+			textureIndex = (float)i;
+			break;
+		}
+	}
+
+	if (textureIndex == 0.0f)
+	{
+		textureIndex = (float)sData.TextureSlotIndex;
+		sData.TextureSlots[sData.TextureSlotIndex] = textureID;
+		sData.TextureSlotIndex+=1;
+	}
+	
+
 	sData.QuadBufferPtr->Position = { position.x, position.y, 0.0f };
 	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 0.0f, 0.0f };
-	sData.QuadBufferPtr->TexIndex = (float)textureID;
+	sData.QuadBufferPtr->TexIndex = textureIndex;
 	sData.QuadBufferPtr++;
 
 	sData.QuadBufferPtr->Position = { position.x, position.y + size.y, 0.0f };
 	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 0.0f, 1.0f };
-	sData.QuadBufferPtr->TexIndex = (float)textureID;
+	sData.QuadBufferPtr->TexIndex = textureIndex;
 	sData.QuadBufferPtr++;
 
 	sData.QuadBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
 	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 1.0f, 1.0f };
-	sData.QuadBufferPtr->TexIndex = (float)textureID;
+	sData.QuadBufferPtr->TexIndex = textureIndex;
 	sData.QuadBufferPtr++;
 
 	sData.QuadBufferPtr->Position = { position.x + size.x, position.y, 0.0f };
 	sData.QuadBufferPtr->Color = tintColor;
 	sData.QuadBufferPtr->TexCoord = { 1.0f, 0.0f };
-	sData.QuadBufferPtr->TexIndex = (float)textureID;
+	sData.QuadBufferPtr->TexIndex = textureIndex;
 	sData.QuadBufferPtr++;
 
 	sData.CurrentQuads++;
@@ -212,29 +243,3 @@ void InitOpenGL()
 	if (glewInit() != GLEW_OK)
 		printf("Error: OpenGL could not initialize correctly!");
 }
-
-unsigned int LoadTexture(const std::string& filepath)
-{
-	int width, height, bits;
-
-	stbi_set_flip_vertically_on_load(1);
-	unsigned char* pixels = stbi_load(filepath.c_str(), &width, &height, &bits, STBI_rgb_alpha);
-	
-	unsigned int textureID;
-	glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-	stbi_image_free(pixels);
-
-	return textureID;
-}
-
-void BindTextureSlot(unsigned int slot, unsigned int textureID)
-{
-	glBindTextureUnit(slot, textureID);
-};

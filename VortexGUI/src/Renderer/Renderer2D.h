@@ -5,10 +5,6 @@
 
 VORTEX_API void InitOpenGL();
 
-VORTEX_API unsigned int LoadTexture(const std::string& filepath);
-
-VORTEX_API void BindTextureSlot(unsigned int slot, unsigned int textureID);
-
 class VORTEX_API Renderer2D
 {
 public:
@@ -23,5 +19,5 @@ public:
 	static void Clear();
 
 	static void DrawQuad(const vec2& position, const vec2& size, const vec4& color);
-	static void DrawQuad(const vec2& position, const vec2& size, int textureID, const vec4& tintColor = { 1.0f, 1.0f, 1.0f, 1.0f });
+	static void DrawTexture(const vec2& position, const vec2& size, int textureID, const vec4& tintColor = { 1.0f, 1.0f, 1.0f, 1.0f });
 };
