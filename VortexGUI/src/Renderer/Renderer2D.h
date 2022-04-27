@@ -20,4 +20,6 @@ public:
 
 	static void DrawQuad(const vec2& position, const vec2& size, const vec4& color);
 	static void DrawTexture(const vec2& position, const vec2& size, int textureID, const vec4& tintColor = { 1.0f, 1.0f, 1.0f, 1.0f });
+
+	static void Wireframe(bool wireframe = true);
 };

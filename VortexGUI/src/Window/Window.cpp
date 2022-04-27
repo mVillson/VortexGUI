@@ -1,19 +1,7 @@
 #include "Window.h"
 #include "GLFW/glfw3.h"
 
-struct WindowData
-{
-	GLFWwindow* window = nullptr;
-	int width = 0;
-	int height = 0;
-	const char* title = "";
-};
-
-static WindowData windowData;
-
-void windowSizeCallback(GLFWwindow* window, int width, int height);
-
-bool Window::InitGlfw()
+bool InitGlfw()
 {
 	if (!glfwInit())
 		return false;
@@ -21,37 +9,96 @@ bool Window::InitGlfw()
 		return true;
 }
 
-void Window::Shutdown()
+void ShutdownGlfw()
 {
 	glfwTerminate();
 }
 
-void Window::CreateWindow(int width, int height, const char* title)
+struct WindowData
 {
-	windowData.width = width;
-	windowData.height = height;
-	windowData.title = title;
+	static const int windowMaxCount = 16;
+	int id;
+	GLFWwindow* window[windowMaxCount];
+	WindowData() 
+	{
+		id = 0;
+		for (int i = 0; i < windowMaxCount; i++)
+		{
+			window[i] = nullptr;
+		}
+	}
+};
 
-	windowData.window = glfwCreateWindow(windowData.width, windowData.height, windowData.title, NULL, NULL);
+WindowData windowData;
 
-	glfwSetWindowSizeCallback(windowData.window, windowSizeCallback);
+void windowSizeCallback(GLFWwindow* window, int width, int height);
 
-	glfwMakeContextCurrent(windowData.window);
+Window::Window()
+	:mWidth(0), mHeight(0), mTitle(""), mVSync(false), mCreated(false)
+{
+
+}
+
+Window::Window(int width, int height, const char* title)
+{
+	mWindowID = windowData.id;
+	windowData.id++;
+
+	mWidth = width;
+	mHeight = height;
+	mTitle = title;
+	mVSync = false;
+
+	windowData.window[mWindowID] = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
+
+	glfwSetWindowSizeCallback(windowData.window[mWindowID], windowSizeCallback);
+
+	mCreated = true;
+}
+
+void Window::Create(int width, int height, const char* title)
+{
+	if (mCreated == false)
+	{
+		mWindowID = windowData.id;
+		windowData.id++;
+
+		mWidth = width;
+		mHeight = height;
+		mTitle = title;
+		mVSync = false;
+
+		windowData.window[mWindowID] = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
+
+		glfwSetWindowSizeCallback(windowData.window[mWindowID], windowSizeCallback);
+
+		mCreated = true;
+	}
 }
 
 void Window::SetTitle(const char* title)
 {
-	glfwSetWindowTitle(windowData.window, title);
+	glfwSetWindowTitle(windowData.window[mWindowID], title);
 }
 
 void Window::SetSize(int width, int height)
 {
-	glfwSetWindowSize(windowData.window, width, height);
+	glfwSetWindowSize(windowData.window[mWindowID], width, height);
+}
+
+void Window::SetVSync(bool vSync)
+{
+	glfwSwapInterval(vSync);
+}
+
+void Window::MakeContextCurrent()
+{
+	glfwMakeContextCurrent(windowData.window[mWindowID]);
 }
 
 bool Window::GetWindowShouldClose()
 {
-	if (glfwWindowShouldClose(windowData.window))
+	if (glfwWindowShouldClose(windowData.window[mWindowID]))
 		return true;
 	else
 		return false;
@@ -59,7 +106,7 @@ bool Window::GetWindowShouldClose()
 
 void Window::SwapBuffers()
 {
-	glfwSwapBuffers(windowData.window);
+	glfwSwapBuffers(windowData.window[mWindowID]);
 }
 
 void Window::PollEvents()

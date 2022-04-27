@@ -2,19 +2,26 @@
 
 #include "..\Core.h"
 
+bool VORTEX_API InitGlfw();
+void VORTEX_API ShutdownGlfw();
+
 class VORTEX_API Window
 {
+private:
+	int mWindowID;
+	int mWidth, mHeight;
+	const char* mTitle;
+	bool mVSync;
+	bool mCreated;
 public:
-	static bool InitGlfw();
-	static void Shutdown();
-
-	static void CreateWindow(int width, int height, const char* title);
-
-	static void SetTitle(const char* title);
-	static void SetSize(int width, int height);
-
-	static bool GetWindowShouldClose();
-	
-	static void SwapBuffers();
-	static void PollEvents(); 
+	Window();
+	Window(int width, int height, const char* title);
+	void Create(int width, int height, const char* title);
+	void SetTitle(const char* title);
+	void SetSize(int width, int height);
+	void SetVSync(bool vSync = true);
+	void MakeContextCurrent();
+	bool GetWindowShouldClose();
+	void SwapBuffers();
+	void PollEvents();
 };

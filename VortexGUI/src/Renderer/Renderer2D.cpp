@@ -236,6 +236,14 @@ void Renderer2D::Clear()
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void Renderer2D::Wireframe(bool wireframe)
+{
+	if (wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else if (!wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
 // Extra
 void InitOpenGL()
 {
