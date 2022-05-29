@@ -1,89 +1,103 @@
 #include "Window.h"
-#include "GLFW/glfw3.h"
 
-bool InitGlfw()
-{
-	if (!glfwInit())
-		return false;
-	else
-		return true;
-}
+// Window Class
 
-void ShutdownGlfw()
-{
-	glfwTerminate();
-}
-
-struct WindowData
-{
-	static const int windowMaxCount = 16;
-	int id;
-	GLFWwindow* window[windowMaxCount];
-	WindowData() 
-	{
-		id = 0;
-		for (int i = 0; i < windowMaxCount; i++)
-		{
-			window[i] = nullptr;
-		}
-	}
-};
-
-WindowData windowData;
+bool init = false;
 
 void windowSizeCallback(GLFWwindow* window, int width, int height);
 
 Window::Window()
 	:mWidth(0), mHeight(0), mTitle(""), mVSync(false), mCreated(false)
 {
+	if (init == false)
+	{
+		if (!glfwInit())
+		{
+			printf("Error: Glfw Could Not Initialize!");
+		}
+		init = true;
+	}
 
+	mWindow = nullptr;
 }
 
 Window::Window(int width, int height, const char* title)
 {
-	mWindowID = windowData.id;
-	windowData.id++;
+	if (init == false)
+	{
+		if (!glfwInit())
+		{
+			printf("Error: Glfw Could Not Initialize!");
+		}
+		init = true;
+	}
 
 	mWidth = width;
 	mHeight = height;
 	mTitle = title;
 	mVSync = false;
 
-	windowData.window[mWindowID] = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
+	mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
 
-	glfwSetWindowSizeCallback(windowData.window[mWindowID], windowSizeCallback);
+	glfwSetWindowSizeCallback(mWindow, windowSizeCallback);
 
 	mCreated = true;
 }
 
-void Window::Create(int width, int height, const char* title)
+void Window::Construct(int width, int height, const char* title)
 {
 	if (mCreated == false)
 	{
-		mWindowID = windowData.id;
-		windowData.id++;
+		if (init == false)
+		{
+			if (!glfwInit())
+			{
+				printf("Error: Glfw Could Not Initialize!");
+			}
+			init = true;
+		}
 
 		mWidth = width;
 		mHeight = height;
 		mTitle = title;
 		mVSync = false;
 
-		windowData.window[mWindowID] = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
+		mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
 
-		glfwSetWindowSizeCallback(windowData.window[mWindowID], windowSizeCallback);
+		glfwSetWindowSizeCallback(mWindow, windowSizeCallback);
 
 		mCreated = true;
 	}
+	else
+	{
+		printf("Error: Window already created!");
+	}
 }
 
+void Window::MakeContextCurrent()
+{
+	glfwMakeContextCurrent(mWindow);
+}
+
+void Window::SwapBuffers()
+{
+	glfwSwapBuffers(mWindow);
+}
+
+void windowSizeCallback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+//setters
 void Window::SetTitle(const char* title)
 {
-	glfwSetWindowTitle(windowData.window[mWindowID], title);
+	glfwSetWindowTitle(mWindow, title);
 }
 
 void Window::SetSize(int width, int height)
 {
-	glfwSetWindowSize(windowData.window[mWindowID], width, height);
+	glfwSetWindowSize(mWindow, width, height);
 }
 
 void Window::SetVSync(bool vSync)
@@ -91,30 +105,31 @@ void Window::SetVSync(bool vSync)
 	glfwSwapInterval(vSync);
 }
 
-void Window::MakeContextCurrent()
+// getters
+GLFWwindow* Window::GetWindow() const
 {
-	glfwMakeContextCurrent(windowData.window[mWindowID]);
+	return mWindow;
 }
 
-bool Window::GetWindowShouldClose()
+int Window::GetWidth() const
 {
-	if (glfwWindowShouldClose(windowData.window[mWindowID]))
+	return mWidth;
+}
+
+int Window::GetHeight() const
+{
+	return mHeight;
+}
+
+bool Window::GetWindowShouldClose() const
+{
+	if (glfwWindowShouldClose(mWindow))
 		return true;
 	else
 		return false;
 }
 
-void Window::SwapBuffers()
+bool Window::GetCreated() const
 {
-	glfwSwapBuffers(windowData.window[mWindowID]);
-}
-
-void Window::PollEvents()
-{
-	glfwPollEvents();
-}
-
-void windowSizeCallback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
+	return mCreated;
 }

@@ -5,4 +5,5 @@
 #include "src/Renderer/ShaderProgram.h"
 #include "src/Renderer/Texture.h"
 #include "src/Window/Window.h"
-#include "src/Math/SimpleMath.h"
+#include "src/Gui/Gui.h"
+#include "src/Window/Event.h"

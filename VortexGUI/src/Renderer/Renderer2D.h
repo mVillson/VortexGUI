@@ -1,9 +1,7 @@
 #pragma once
 
 #include "..\Core.h"
-#include "..\Math\SimpleMath.h"
-
-VORTEX_API void InitOpenGL();
+#include "..\..\vendor\glm\glm.hpp"
 
 class VORTEX_API Renderer2D
 {
@@ -15,11 +13,11 @@ public:
 	static void EndBatch();
 	static void Flush();
 
-	static void ClearColor(const vec4& color);
+	static void ClearColor(const glm::vec4& color);
 	static void Clear();
 
-	static void DrawQuad(const vec2& position, const vec2& size, const vec4& color);
-	static void DrawTexture(const vec2& position, const vec2& size, int textureID, const vec4& tintColor = { 1.0f, 1.0f, 1.0f, 1.0f });
+	static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+	static void DrawTexture(const glm::vec2& position, const glm::vec2& size, int textureID, const glm::vec4& tintColor = { 1.0f, 1.0f, 1.0f, 1.0f });
 
 	static void Wireframe(bool wireframe = true);
 };

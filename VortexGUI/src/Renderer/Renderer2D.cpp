@@ -1,6 +1,6 @@
 #include "Renderer2D.h"
 
-#include "GLEW\glew.h"
+#include "GLEW/glew.h"
 
 #include "..\..\vendor\stb_image\stb_image.h"
 
@@ -13,9 +13,9 @@ static const unsigned int MaxTextureSlots = 32;
 
 struct Vertex
 {
-	vec3 Position;
-	vec4 Color;
-	vec2 TexCoord;
+	glm::vec3 Position;
+	glm::vec4 Color;
+	glm::vec2 TexCoord;
 	float TexIndex;
 };
 
@@ -33,6 +33,12 @@ struct RendererData
 	unsigned int TextureSlots[MaxTextureSlots];
 	unsigned int TextureSlotIndex = 0;
 
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 projection;
+
+	glm::mat4 mvp;
+
 	ShaderProgram sp;
 };
 
@@ -40,6 +46,15 @@ static RendererData sData;
 
 void Renderer2D::Init()
 {
+	if (sData.QuadBuffer != nullptr)
+		return;
+
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+	{
+		printf("Error: Glew Could Not Initialize!");
+	}
+
 	sData.QuadBuffer = new Vertex[MaxVertexCount];
 
 	glCreateVertexArrays(1, &sData.va);
@@ -83,16 +98,12 @@ void Renderer2D::Init()
 
 	sData.sp.Create();
 
-	std::string texture;
-	std::stringstream texSlot;
-	for (int i = 0; i < 31; i++)
+	int samplers[32];
+	for (int i = 0; i < 32; i++)
 	{
-		texture = "uTexture";
-		texSlot.str("");
-		texSlot << i;
-		texture += texSlot.str().c_str();
-		sData.sp.SetUniform1i(texture.c_str(), i);
+		samplers[i] = i;
 	}
+	sData.sp.SetUniform1iv("uTexture", 32, samplers);
 
 	for (unsigned int i = 0; i < MaxTextureSlots; i++)
 		sData.TextureSlots[i] = 0;
@@ -116,6 +127,13 @@ void Renderer2D::Flush()
 		glBindTextureUnit(i, sData.TextureSlots[i]);
 	}
 
+	sData.model = glm::mat4(1.0f);
+	sData.view = glm::mat4(1.0f);
+	sData.projection = glm::mat4(1.0f);
+	sData.mvp = sData.model * sData.view * sData.projection;
+
+	sData.sp.SetUniformMatrix("uMvp", sData.mvp);
+
 	glBindVertexArray(sData.va);
 	glDrawElements(GL_TRIANGLES, 6 * sData.CurrentQuads, GL_UNSIGNED_INT, nullptr);
 }
@@ -129,7 +147,7 @@ void Renderer2D::ShutDown()
 	delete[] sData.QuadBuffer;
 }
 
-void Renderer2D::DrawQuad(const vec2& position, const vec2& size, const vec4& color)
+void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 {
 	if (sData.CurrentQuads >= MaxQuadCount)
 	{
@@ -169,7 +187,7 @@ void Renderer2D::DrawQuad(const vec2& position, const vec2& size, const vec4& co
 	sData.CurrentQuads++;
 }
 
-void Renderer2D::DrawTexture(const vec2& position, const vec2& size, int textureID, const vec4& tintColor)
+void Renderer2D::DrawTexture(const glm::vec2& position, const glm::vec2& size, int textureID, const glm::vec4& tintColor)
 {
 	if (sData.CurrentQuads >= MaxQuadCount || sData.TextureSlotIndex > 32)
 	{
@@ -197,7 +215,6 @@ void Renderer2D::DrawTexture(const vec2& position, const vec2& size, int texture
 		sData.TextureSlots[sData.TextureSlotIndex] = textureID;
 		sData.TextureSlotIndex+=1;
 	}
-	
 
 	sData.QuadBufferPtr->Position = { position.x, position.y, 0.0f };
 	sData.QuadBufferPtr->Color = tintColor;
@@ -226,7 +243,7 @@ void Renderer2D::DrawTexture(const vec2& position, const vec2& size, int texture
 	sData.CurrentQuads++;
 }
 
-void Renderer2D::ClearColor(const vec4& color)
+void Renderer2D::ClearColor(const glm::vec4& color)
 {
 	glClearColor(color.x, color.y, color.z, color.w);
 }
@@ -242,12 +259,4 @@ void Renderer2D::Wireframe(bool wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else if (!wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-// Extra
-void InitOpenGL()
-{
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-		printf("Error: OpenGL could not initialize correctly!");
 }
