@@ -10,6 +10,7 @@ class VORTEX_API Window
 private:
 	GLFWwindow* mWindow;
 	int mWidth, mHeight;
+	double mCursorPosX, mCursorPosY;
 	const char* mTitle;
 	bool mVSync;
 	bool mCreated;
@@ -28,8 +29,10 @@ public:
 
 	//getters
 	GLFWwindow* GetWindow() const;
-	int GetWidth() const;
-	int GetHeight() const;
+	int GetWidth();
+	int GetHeight();
+	double GetCursorPosX();
+	double GetCursorPosY();
 	bool GetWindowShouldClose() const;
 	bool GetCreated() const;
 };

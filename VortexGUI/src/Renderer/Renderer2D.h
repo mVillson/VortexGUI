@@ -19,5 +19,9 @@ public:
 	static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 	static void DrawTexture(const glm::vec2& position, const glm::vec2& size, int textureID, const glm::vec4& tintColor = { 1.0f, 1.0f, 1.0f, 1.0f });
 
+	static void SetModel(const glm::mat4 m);
+	static void SetView(const glm::mat4 m);
+	static void SetProjection(const glm::mat4 m);
+
 	static void Wireframe(bool wireframe = true);
 };

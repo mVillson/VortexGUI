@@ -7,7 +7,7 @@ bool init = false;
 void windowSizeCallback(GLFWwindow* window, int width, int height);
 
 Window::Window()
-	:mWidth(0), mHeight(0), mTitle(""), mVSync(false), mCreated(false)
+	:mWidth(0), mHeight(0), mCursorPosX(0.0), mCursorPosY(0.0), mTitle(""), mVSync(false), mCreated(false)
 {
 	if (init == false)
 	{
@@ -22,6 +22,7 @@ Window::Window()
 }
 
 Window::Window(int width, int height, const char* title)
+	:mCursorPosX(0.0), mCursorPosY(0.0)
 {
 	if (init == false)
 	{
@@ -111,14 +112,28 @@ GLFWwindow* Window::GetWindow() const
 	return mWindow;
 }
 
-int Window::GetWidth() const
+int Window::GetWidth()
 {
+	glfwGetWindowSize(mWindow, &mWidth, &mHeight);
 	return mWidth;
 }
 
-int Window::GetHeight() const
+int Window::GetHeight()
 {
+	glfwGetWindowSize(mWindow, &mWidth, &mHeight);
 	return mHeight;
+}
+
+double Window::GetCursorPosX()
+{
+	glfwGetCursorPos(mWindow, &mCursorPosX, &mCursorPosY);
+	return mCursorPosX;
+}
+
+double Window::GetCursorPosY()
+{
+	glfwGetCursorPos(mWindow, &mCursorPosX, &mCursorPosY);
+	return (double)mHeight - mCursorPosY;
 }
 
 bool Window::GetWindowShouldClose() const

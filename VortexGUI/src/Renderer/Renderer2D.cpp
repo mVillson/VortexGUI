@@ -127,9 +127,6 @@ void Renderer2D::Flush()
 		glBindTextureUnit(i, sData.TextureSlots[i]);
 	}
 
-	sData.model = glm::mat4(1.0f);
-	sData.view = glm::mat4(1.0f);
-	sData.projection = glm::mat4(1.0f);
 	sData.mvp = sData.model * sData.view * sData.projection;
 
 	sData.sp.SetUniformMatrix("uMvp", sData.mvp);
@@ -197,7 +194,6 @@ void Renderer2D::DrawTexture(const glm::vec2& position, const glm::vec2& size, i
 
 		sData.CurrentQuads = 0;
 	}
-
 	
 	float textureIndex = 0.0f;
 	for (unsigned int i = 1; i < sData.TextureSlotIndex; i++)
@@ -251,6 +247,21 @@ void Renderer2D::ClearColor(const glm::vec4& color)
 void Renderer2D::Clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Renderer2D::SetModel(const glm::mat4 m)
+{
+	sData.model = m;
+}
+
+void Renderer2D::SetView(const glm::mat4 m)
+{
+	sData.view = m;
+}
+
+void Renderer2D::SetProjection(const glm::mat4 m)
+{
+	sData.projection = m;
 }
 
 void Renderer2D::Wireframe(bool wireframe)

@@ -1,5 +1,7 @@
 #include "..\..\VortexGUI\VortexGUI.h"
 
+#include <iostream>
+
 int main()
 {
 	Window window(800, 600, "C++ & OpenGL");
@@ -22,21 +24,40 @@ int main()
 		Renderer2D::Clear();
 
 		Renderer2D::BeginBatch();
-		
-		Renderer2D::DrawQuad({ -0.5f, -0.5f }, { 0.25f, 0.25f }, { 0.97f, 0.93f, 0.13f, 1.0f });
+		// shit beigns
+		window.SetVSync(false);
+		static bool a = false;
+		if (window.GetCursorPosX() >= 100.0f && window.GetCursorPosX() <= 200.0f)
+		{
+			if (window.GetCursorPosY() >= 100.0f && window.GetCursorPosY() <= 200.0f)
+			{
+				Renderer2D::DrawQuad({ 100.0f, 100.0f }, { 100.0f, 100.0f }, { 0.91f, 0.86f, 0.17f, 1.0f });
+				a = true;
+				if (event.IfMouseButtonPressed(MouseButton::LEFT))
+					Renderer2D::Wireframe(true);
+			}
+		}
 
-		Renderer2D::DrawTexture({ -0.20f, -0.5f }, { 0.25f, 0.25f }, texture1, { 0.7f, 1.0f, 0.8f, 1.0f });
+		if (a == false)
+			Renderer2D::DrawQuad({ 100.0f, 100.0f }, { 100.0f, 100.0f }, { 0.97f, 0.94f, 0.16f, 1.0f });
 
-		Renderer2D::DrawTexture({ 0.10f, -0.5f }, { 0.25f, 0.25f }, texture2, { 1.0f, 0.5f, 1.0f, 1.0f });
+		a = false;
 
+		if (event.IfMouseButtonReleased(MouseButton::LEFT))
+			Renderer2D::Wireframe(false);
+		// shit ends
+
+		Renderer2D::DrawTexture({ 300.0f, 100.0f }, { 100.0f, 100.0f }, texture1, { 0.7f, 1.0f, 0.8f, 1.0f });
+
+		Renderer2D::DrawTexture({ 500.0f, 100.0f }, { 100.0f, 100.0f }, texture2, { 1.0f, 0.5f, 1.0f, 1.0f });
+	
 		Renderer2D::EndBatch();
 
-		Renderer2D::Flush();
+		Renderer2D::SetModel(glm::mat4(1.0f));
+		Renderer2D::SetView(glm::ortho(0.0f, (float)window.GetWidth(), 0.0f, (float)window.GetHeight()));
+		Renderer2D::SetProjection(glm::mat4(1.0f));
 
-		if (event.IfMouseButtonPressed(MouseButton::LEFT))
-			Renderer2D::Wireframe(true);
-		else if (event.IfMouseButtonReleased(MouseButton::RIGHT))
-			Renderer2D::Wireframe(false);
+		Renderer2D::Flush();
 
 		window.SwapBuffers();
 	}
