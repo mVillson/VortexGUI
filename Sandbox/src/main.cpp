@@ -5,10 +5,10 @@
 int main()
 {
 	Window window(800, 600, "C++ & OpenGL");
-	window.MakeContextCurrent();
-
-	Gui gui(window);
 	Event event(window);
+	Gui gui(window, event);
+
+	window.MakeContextCurrent();
 
 	Renderer2D::Init();
 
@@ -24,28 +24,11 @@ int main()
 		Renderer2D::Clear();
 
 		Renderer2D::BeginBatch();
-		// shit beigns
-		window.SetVSync(false);
-		static bool a = false;
-		if (window.GetCursorPosX() >= 100.0f && window.GetCursorPosX() <= 200.0f)
-		{
-			if (window.GetCursorPosY() >= 100.0f && window.GetCursorPosY() <= 200.0f)
-			{
-				Renderer2D::DrawQuad({ 100.0f, 100.0f }, { 100.0f, 100.0f }, { 0.91f, 0.86f, 0.17f, 1.0f });
-				a = true;
-				if (event.IfMouseButtonPressed(MouseButton::LEFT))
-					Renderer2D::Wireframe(true);
-			}
-		}
 
-		if (a == false)
-			Renderer2D::DrawQuad({ 100.0f, 100.0f }, { 100.0f, 100.0f }, { 0.97f, 0.94f, 0.16f, 1.0f });
+		window.RetrieveEvents();
+		window.SetViewport(0, window.GetWidth(), 0, window.GetHeight());
 
-		a = false;
-
-		if (event.IfMouseButtonReleased(MouseButton::LEFT))
-			Renderer2D::Wireframe(false);
-		// shit ends
+		Renderer2D::DrawQuad({ 100.0f, 100.0f }, { 100.0f, 100.0f }, { 0.97f, 0.94f, 0.16f, 1.0f });
 
 		Renderer2D::DrawTexture({ 300.0f, 100.0f }, { 100.0f, 100.0f }, texture1, { 0.7f, 1.0f, 0.8f, 1.0f });
 
@@ -62,7 +45,6 @@ int main()
 		window.SwapBuffers();
 	}
 
-	Renderer2D::ShutDown();
 	Gui::Shutdown();
 	return 0;
 }

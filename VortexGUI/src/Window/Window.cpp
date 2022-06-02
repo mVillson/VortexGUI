@@ -85,9 +85,15 @@ void Window::SwapBuffers()
 	glfwSwapBuffers(mWindow);
 }
 
+void Window::RetrieveEvents()
+{
+	glfwGetWindowSize(mWindow, &mWidth, &mHeight);
+	glfwGetCursorPos(mWindow, &mCursorPosX, &mCursorPosY);
+}
+
 void windowSizeCallback(GLFWwindow* window, int width, int height)
 {
-	glViewport(0, 0, width, height);
+	
 }
 
 //setters
@@ -99,6 +105,11 @@ void Window::SetTitle(const char* title)
 void Window::SetSize(int width, int height)
 {
 	glfwSetWindowSize(mWindow, width, height);
+}
+
+void Window::SetViewport(int left, int right, int bottom, int top)
+{
+	glViewport(left, bottom, right, top);
 }
 
 void Window::SetVSync(bool vSync)
@@ -114,25 +125,21 @@ GLFWwindow* Window::GetWindow() const
 
 int Window::GetWidth()
 {
-	glfwGetWindowSize(mWindow, &mWidth, &mHeight);
 	return mWidth;
 }
 
 int Window::GetHeight()
 {
-	glfwGetWindowSize(mWindow, &mWidth, &mHeight);
 	return mHeight;
 }
 
 double Window::GetCursorPosX()
 {
-	glfwGetCursorPos(mWindow, &mCursorPosX, &mCursorPosY);
 	return mCursorPosX;
 }
 
 double Window::GetCursorPosY()
 {
-	glfwGetCursorPos(mWindow, &mCursorPosX, &mCursorPosY);
 	return (double)mHeight - mCursorPosY;
 }
 

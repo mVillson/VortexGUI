@@ -21,10 +21,12 @@ public:
 
 	void MakeContextCurrent();
 	void SwapBuffers();
+	void RetrieveEvents();
 
 	// setters
 	void SetTitle(const char* title);
 	void SetSize(int width, int height);
+	void SetViewport(int left, int right, int bottom, int top);
 	void SetVSync(bool vSync = true);
 
 	//getters
