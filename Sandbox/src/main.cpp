@@ -1,7 +1,5 @@
 #include "..\..\VortexGUI\VortexGUI.h"
 
-#include <iostream>
-
 int main()
 {
 	Window window(800, 600, "C++ & OpenGL");
@@ -20,13 +18,12 @@ int main()
 	while (!window.GetWindowShouldClose())
 	{
 		Event::PollEvents();
+		window.RetrieveEvents();
+		window.SetViewport(0, window.GetWidth(), 0, window.GetHeight());
 		
 		Renderer2D::Clear();
 
 		Renderer2D::BeginBatch();
-
-		window.RetrieveEvents();
-		window.SetViewport(0, window.GetWidth(), 0, window.GetHeight());
 
 		Renderer2D::DrawQuad({ 100.0f, 100.0f }, { 100.0f, 100.0f }, { 0.97f, 0.94f, 0.16f, 1.0f });
 

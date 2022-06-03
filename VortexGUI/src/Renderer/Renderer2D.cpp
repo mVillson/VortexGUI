@@ -249,17 +249,17 @@ void Renderer2D::Clear()
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer2D::SetModel(const glm::mat4 m)
+void Renderer2D::SetModel(const glm::mat4& m)
 {
 	sData.model = m;
 }
 
-void Renderer2D::SetView(const glm::mat4 m)
+void Renderer2D::SetView(const glm::mat4& m)
 {
 	sData.view = m;
 }
 
-void Renderer2D::SetProjection(const glm::mat4 m)
+void Renderer2D::SetProjection(const glm::mat4& m)
 {
 	sData.projection = m;
 }

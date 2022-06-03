@@ -20,5 +20,6 @@ public:
 	void Begin();
 	void End();
 	void Draw();
+	void Button(bool& PressState, float x, float y, float width, float height);
 	static void Shutdown();
 };
