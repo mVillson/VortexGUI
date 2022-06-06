@@ -6,7 +6,7 @@
 
 #include "ShaderProgram.h"
 
-static const unsigned int MaxQuadCount = 1000;
+static const unsigned int MaxQuadCount = 500;
 static const unsigned int MaxVertexCount = 4 * MaxQuadCount;
 static const unsigned int MaxIndexCount = 6 * MaxQuadCount;
 static const unsigned int MaxTextureSlots = 32;

@@ -110,38 +110,48 @@ void ShaderProgram::Unbind() const
 	glUseProgram(0);
 }
 
+int ShaderProgram::GetUniformLocation(const std::string& name)
+{
+	if (mUniformLocations.find(name) != mUniformLocations.end())
+		return mUniformLocations[name];
+
+	auto loc = glGetUniformLocation(mProgram, name.c_str());
+	mUniformLocations[name] = loc;
+	return loc;
+}
+
 void ShaderProgram::SetUniform1i(const std::string& name, int i)
 {
-	auto loc = glGetUniformLocation(mProgram, name.c_str());
+	auto loc = GetUniformLocation(name);
 	glUniform1i(loc, i);
 }
 
 void ShaderProgram::SetUniform1iv(const std::string& name, unsigned int count, const int* value)
 {
-	auto loc = glGetUniformLocation(mProgram, name.c_str());
+	auto loc = GetUniformLocation(name);
 	glUniform1iv(loc, count, value);
 }
 
 void ShaderProgram::SetUniform2f(const std::string& name, const glm::vec2& v)
 {
-	auto loc = glGetUniformLocation(mProgram, name.c_str());
+	auto loc = GetUniformLocation(name);
 	glUniform2f(loc, v.x, v.y);
 }
 
 void ShaderProgram::SetUniform3f(const std::string& name, const glm::vec3& v)
 {
-	auto loc = glGetUniformLocation(mProgram, name.c_str());
+	auto loc = GetUniformLocation(name);
 	glUniform3f(loc, v.x, v.y, v.z);
 }
 
 void ShaderProgram::SetUniform4f(const std::string& name, const glm::vec4& v)
 {
-	auto loc = glGetUniformLocation(mProgram, name.c_str());
+	auto loc = GetUniformLocation(name);
 	glUniform4f(loc, v.x, v.y, v.z, v.w);
 }
 
 void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat4& m)
 {
-	auto loc = glGetUniformLocation(mProgram, name.c_str());
+	auto loc = GetUniformLocation(name);
 	glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m));
 }

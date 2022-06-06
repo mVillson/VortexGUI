@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <array>
+#include <unordered_map>
 
 #ifdef VTX_BUILD_DLL
 	#define VORTEX_API __declspec(dllexport)
